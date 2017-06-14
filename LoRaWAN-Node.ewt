@@ -17,135 +17,186 @@
     <debug>0</debug>
   </configuration>
   <group>
-    <name>examples</name>
+    <name>app</name>
     <group>
-      <name>beacon</name>
-      <file>
-        <name>$PROJ_DIR$\examples\beacon\main.c</name>
-      </file>
+      <name>LoRaMac</name>
+      <group>
+        <name>classA</name>
+        <file>
+          <name>$PROJ_DIR$\apps\LoRaMac\classA\Bleeper-76\main.c</name>
+        </file>
+      </group>
+      <group>
+        <name>classB</name>
+        <file>
+          <name>$PROJ_DIR$\apps\LoRaMac\classB\Bleeper-76\main.c</name>
+        </file>
+      </group>
+      <group>
+        <name>classC</name>
+        <file>
+          <name>$PROJ_DIR$\apps\LoRaMac\classC\Bleeper-76\main.c</name>
+        </file>
+      </group>
+      <group>
+        <name>radioCoverageTest</name>
+        <file>
+          <name>$PROJ_DIR$\apps\LoRaMac\radioCoverageTest\Bleeper-76\main.c</name>
+        </file>
+      </group>
     </group>
     <group>
-      <name>hello</name>
+      <name>ping-pong</name>
       <file>
-        <name>$PROJ_DIR$\examples\hello\main.c</name>
-      </file>
-    </group>
-    <group>
-      <name>interrupt</name>
-      <file>
-        <name>$PROJ_DIR$\examples\interrupt\main.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\examples\interrupt\sensor.c</name>
-      </file>
-    </group>
-    <group>
-      <name>join</name>
-      <file>
-        <name>$PROJ_DIR$\examples\join\main.c</name>
-      </file>
-    </group>
-    <group>
-      <name>modem</name>
-      <file>
-        <name>$PROJ_DIR$\examples\modem\buffer.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\examples\modem\frame.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\examples\modem\hex.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\examples\modem\main.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\examples\modem\modem.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\examples\modem\modem.h</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\examples\modem\queue.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\examples\modem\usart.c</name>
-      </file>
-    </group>
-    <group>
-      <name>periodic</name>
-      <file>
-        <name>$PROJ_DIR$\examples\periodic\main.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\examples\periodic\sensor.c</name>
-      </file>
-    </group>
-    <group>
-      <name>ping</name>
-      <file>
-        <name>$PROJ_DIR$\examples\ping\main.c</name>
-      </file>
-    </group>
-    <group>
-      <name>transmit</name>
-      <file>
-        <name>$PROJ_DIR$\examples\transmit\main.c</name>
+        <name>$PROJ_DIR$\apps\ping-pong\Bleeper-76\main.c</name>
       </file>
     </group>
   </group>
   <group>
     <name>hal</name>
     <file>
-      <name>$PROJ_DIR$\hal\debug.c</name>
+      <name>$PROJ_DIR$\hal\adc.c</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\hal\debug.h</name>
+      <name>$PROJ_DIR$\hal\adc.h</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\hal\crypto\aes.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\hal\crypto\aes.h</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\hal\board.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\hal\board.h</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\hal\crypto\cmac.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\hal\crypto\cmac.h</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\hal\delay.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\hal\delay.h</name>
     </file>
     <file>
       <name>$PROJ_DIR$\hal\eeprom.c</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\hal\hal.c</name>
+      <name>$PROJ_DIR$\hal\eeprom.h</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\hal\hw.c</name>
+      <name>$PROJ_DIR$\hal\fifo.c</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\hal\hw.h</name>
+      <name>$PROJ_DIR$\hal\fifo.h</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\hal\leds.c</name>
+      <name>$PROJ_DIR$\hal\gpio.c</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\hal\leds.h</name>
+      <name>$PROJ_DIR$\hal\gpio.h</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\hal\gps.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\hal\gps.h</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\hal\i2c.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\hal\i2c.h</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\hal\LoRaMac-board.h</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\hal\pinName-board.h</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\hal\pinName-ioe.h</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\hal\selector.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\hal\selector.h</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\hal\serial.h</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\hal\spi-board.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\hal\spi-board.h</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\hal\spi.h</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\hal\sx1276-board.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\hal\sx1276-board.h</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\hal\timer.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\hal\timer.h</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\hal\uart.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\hal\uart.h</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\hal\utilities.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\hal\utilities.h</name>
     </file>
   </group>
   <group>
-    <name>lmic</name>
+    <name>mac</name>
     <file>
-      <name>$PROJ_DIR$\lmic\aes.c</name>
+      <name>$PROJ_DIR$\mac\LoRaMac.c</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\lmic\hal.h</name>
+      <name>$PROJ_DIR$\mac\LoRaMac.h</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\lmic\lmic.c</name>
+      <name>$PROJ_DIR$\mac\LoRaMacCrypto.c</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\lmic\lmic.h</name>
+      <name>$PROJ_DIR$\mac\LoRaMacCrypto.h</name>
+    </file>
+  </group>
+  <group>
+    <name>radio</name>
+    <file>
+      <name>$PROJ_DIR$\radio\radio.h</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\lmic\lorabase.h</name>
+      <name>$PROJ_DIR$\radio\sx1276.c</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\lmic\oslmic.c</name>
+      <name>$PROJ_DIR$\radio\sx1276.h</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\lmic\oslmic.h</name>
+      <name>$PROJ_DIR$\radio\sx1276Regs-Fsk.h</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\lmic\radio.c</name>
+      <name>$PROJ_DIR$\radio\sx1276Regs-LoRa.h</name>
     </file>
   </group>
   <group>

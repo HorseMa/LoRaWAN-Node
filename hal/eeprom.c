@@ -1,67 +1,223 @@
 /*
- * Copyright (c) 2014-2016 IBM Corporation.
- * All rights reserved.
- *
- *  Redistribution and use in source and binary forms, with or without
- *  modification, are permitted provided that the following conditions are met:
- *  * Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- *  * Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- *  * Neither the name of the <organization> nor the
- *    names of its contributors may be used to endorse or promote products
- *    derived from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
- * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+ / _____)             _              | |
+( (____  _____ ____ _| |_ _____  ____| |__
+ \____ \| ___ |    (_   _) ___ |/ ___)  _ \
+ _____) ) ____| | | || |_| ____( (___| | | |
+(______/|_____)_|_|_| \__)_____)\____)_| |_|
+    (C)2013 Semtech
 
-#include "hw.h"
-#include "lmic.h"
+Description: Timer objects and scheduling management
 
-// write 32-bit word to EEPROM memory
-void eeprom_write (u4_t* addr, u4_t val) {
+License: Revised BSD License, see LICENSE.TXT file include in the project
+
+Maintainer: Miguel Luis and Gregory Cristian
+*/
+#include "board.h"
+
+//#include "i2c-board.h"
+//#include "i2c.h"
+
+#include "eeprom.h"
+
+#define DEVICE_I2C_ADDRESS                          0xA8
+
+static uint8_t I2cDeviceAddr = DEVICE_I2C_ADDRESS;
+
+#define EE_PAGE_SIZE                                64
+
+uint8_t EepromWriteBuffer( uint16_t addr, uint8_t *buffer, uint16_t size )
+{
 #if 0
-    // check previous value
-    if( *addr != val ) {
-        // unlock data eeprom memory and registers
-        FLASH->PEKEYR = 0x89ABCDEF; // FLASH_PEKEY1
-        FLASH->PEKEYR = 0x02030405; // FLASH_PEKEY2
-
-        // only auto-erase if neccessary (when content is non-zero)
-        FLASH->PECR &= ~FLASH_PECR_FTDW; // clear FTDW
-
-        // write value
-        *addr = val;
-
-        // check for end of programming
-        while(FLASH->SR & FLASH_SR_BSY); // loop while busy
-
-        // lock data eeprom memory and registers
-        FLASH->PECR |= FLASH_PECR_PELOCK;
-
-        // verify value
-        while( *(volatile u4_t*)addr != val ); // halt on mismatch
+    uint8_t nbPage = 0;
+    uint8_t nbBytes = 0;
+    uint8_t nbBytesRemaining = 0;
+    uint16_t lAddr = 0;
+    
+    lAddr = addr % EE_PAGE_SIZE;
+    nbBytesRemaining = EE_PAGE_SIZE - lAddr;
+    nbPage =  size / EE_PAGE_SIZE;
+    nbBytes = size % EE_PAGE_SIZE;
+    
+    I2cSetAddrSize( &I2c, I2C_ADDR_SIZE_16 );
+    /*!< If lAddr is EE_PAGE_SIZE aligned  */
+    if( lAddr == 0 )
+    {
+        /*!< If size < EE_PAGE_SIZE */
+        if( nbPage == 0 ) 
+        {
+            if( I2cWriteBuffer( &I2c, I2cDeviceAddr, addr, buffer, size ) == FAIL )
+            {
+                I2cSetAddrSize( &I2c, I2C_ADDR_SIZE_8 );
+                return FAIL;
+            }
+            if( I2cMcuWaitStandbyState( &I2c, I2cDeviceAddr ) == FAIL )
+            {
+                I2cSetAddrSize( &I2c, I2C_ADDR_SIZE_8 );
+                return FAIL;
+            }
+        }
+        /*!< If size > EE_PAGE_SIZE */
+        else  
+        {
+            while( nbPage-- )
+            {
+                if( I2cWriteBuffer( &I2c, I2cDeviceAddr, addr, buffer, EE_PAGE_SIZE ) == FAIL )
+                {
+                    I2cSetAddrSize( &I2c, I2C_ADDR_SIZE_8 );
+                    return FAIL;
+                }
+                if( I2cMcuWaitStandbyState( &I2c, I2cDeviceAddr ) == FAIL )
+                {
+                    I2cSetAddrSize( &I2c, I2C_ADDR_SIZE_8 );
+                    return FAIL;
+                }
+                addr +=  EE_PAGE_SIZE;
+                buffer += EE_PAGE_SIZE;
+            }
+    
+            if( nbBytes != 0 )
+            {
+                if( I2cWriteBuffer( &I2c, I2cDeviceAddr, addr, buffer, nbBytes ) == FAIL )
+                {
+                    I2cSetAddrSize( &I2c, I2C_ADDR_SIZE_8 );
+                    return FAIL;
+                }
+                if( I2cMcuWaitStandbyState( &I2c, I2cDeviceAddr ) == FAIL )
+                {
+                    I2cSetAddrSize( &I2c, I2C_ADDR_SIZE_8 );
+                    return FAIL;
+                }
+            }
+        }
     }
+    /*!< If addr is not EE_PAGE_SIZE aligned  */
+    else 
+    {
+        /*!< If size < EE_PAGE_SIZE */
+        if( nbPage== 0 ) 
+        {
+            /*!< If the number of data to be written is more than the remaining space 
+            in the current page: */
+            if ( size > nbBytesRemaining )
+            {
+                if( I2cWriteBuffer( &I2c, I2cDeviceAddr, addr, buffer, nbBytesRemaining ) == FAIL )
+                {
+                    I2cSetAddrSize( &I2c, I2C_ADDR_SIZE_8 );
+                    return FAIL;
+                }
+                if( I2cMcuWaitStandbyState( &I2c, I2cDeviceAddr ) == FAIL )
+                {
+                    I2cSetAddrSize( &I2c, I2C_ADDR_SIZE_8 );
+                    return FAIL;
+                }
+                
+                if( I2cWriteBuffer( &I2c, I2cDeviceAddr, ( addr + nbBytesRemaining ),
+                                                   ( uint8_t* )( buffer + nbBytesRemaining ),
+                                                   ( size - nbBytesRemaining ) ) == FAIL )
+                {
+                    I2cSetAddrSize( &I2c, I2C_ADDR_SIZE_8 );
+                    return FAIL;
+                }
+                if( I2cMcuWaitStandbyState( &I2c, I2cDeviceAddr ) == FAIL )
+                {
+                    I2cSetAddrSize( &I2c, I2C_ADDR_SIZE_8 );
+                    return FAIL;
+                }
+            }      
+            else      
+            {
+                if( I2cWriteBuffer( &I2c, I2cDeviceAddr, addr, buffer, nbBytes ) == FAIL )
+                {
+                    I2cSetAddrSize( &I2c, I2C_ADDR_SIZE_8 );
+                    return FAIL;
+                }
+                if( I2cMcuWaitStandbyState( &I2c, I2cDeviceAddr ) == FAIL )
+                {
+                    I2cSetAddrSize( &I2c, I2C_ADDR_SIZE_8 );
+                    return FAIL;
+                }
+            }     
+        }
+        /*!< If size > EE_PAGE_SIZE */
+        else
+        {
+            size -= nbBytesRemaining;
+            nbPage =  size / EE_PAGE_SIZE;
+            nbBytes = size % EE_PAGE_SIZE;
+            
+            if( nbBytesRemaining != 0 )
+            {  
+                if( I2cWriteBuffer( &I2c, I2cDeviceAddr, addr, buffer, nbBytesRemaining ) == FAIL )
+                {
+                    I2cSetAddrSize( &I2c, I2C_ADDR_SIZE_8 );
+                    return FAIL;
+                }
+                if( I2cMcuWaitStandbyState( &I2c, I2cDeviceAddr ) == FAIL )
+                {
+                    I2cSetAddrSize( &I2c, I2C_ADDR_SIZE_8 );
+                    return FAIL;
+                }
+                addr += nbBytesRemaining;
+                buffer += nbBytesRemaining;
+            } 
+            
+            while( nbPage-- )
+            {
+                if( I2cWriteBuffer( &I2c, I2cDeviceAddr, addr, buffer, EE_PAGE_SIZE ) == FAIL )
+                {
+                    I2cSetAddrSize( &I2c, I2C_ADDR_SIZE_8 );
+                    return FAIL;
+                }
+                if( I2cMcuWaitStandbyState( &I2c, I2cDeviceAddr ) == FAIL )
+                {
+                    I2cSetAddrSize( &I2c, I2C_ADDR_SIZE_8 );
+                    return FAIL;
+                }
+                addr +=  EE_PAGE_SIZE;
+                buffer += EE_PAGE_SIZE;
+            }
+            if( nbBytes != 0 )
+            {
+                if( I2cWriteBuffer( &I2c, I2cDeviceAddr, addr, buffer, nbBytes ) == FAIL )
+                {
+                    I2cSetAddrSize( &I2c, I2C_ADDR_SIZE_8 );
+                    return FAIL;
+                }
+                if( I2cMcuWaitStandbyState( &I2c, I2cDeviceAddr ) == FAIL )
+                {
+                    I2cSetAddrSize( &I2c, I2C_ADDR_SIZE_8 );
+                    return FAIL;
+                }
+            }
+        }
+    } 
+    I2cSetAddrSize( &I2c, I2C_ADDR_SIZE_8 );
 #endif
+    return SUCCESS;
 }
 
-void eeprom_copy (void* dst, const void* src, u2_t len) {
-    while(((u4_t)dst & 3) || ((u4_t)src & 3) || (len & 3)); // halt if not multiples of 4
-    u4_t* d = (u4_t*)dst;
-    u4_t* s = (u4_t*)src;
-    u2_t  l = len/4;
+uint8_t EepromReadBuffer( uint16_t addr, uint8_t *buffer, uint16_t size )
+{
+#if 0
+    uint8_t status = FAIL;
 
-    while(l--) {
-        eeprom_write(d++, *s++);
-    }
+    I2cSetAddrSize( &I2c, I2C_ADDR_SIZE_16 );
+    
+    status = I2cReadBuffer( &I2c, I2cDeviceAddr, addr, buffer, size );
+    
+    I2cSetAddrSize( &I2c, I2C_ADDR_SIZE_8 );
+
+    return status;
+#endif
+    return 0;
+}
+
+void EepromSetDeviceAddr( uint8_t addr )
+{
+    I2cDeviceAddr = addr;
+}
+
+uint8_t EepromGetDeviceAddr( void )
+{
+    return I2cDeviceAddr;
 }

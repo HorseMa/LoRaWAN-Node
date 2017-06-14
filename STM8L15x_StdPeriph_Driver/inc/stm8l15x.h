@@ -29,7 +29,7 @@
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM8L15x_H
  #define __STM8L15x_H
-
+#include <stdint.h>
 /** @addtogroup STM8L15x_StdPeriph_Driver
   * @{
   */
@@ -217,16 +217,37 @@ defined (STM8L05X_LD_VL) || defined (STM8L05X_MD_VL) || defined (STM8AL31_L_MD)
 #define     __I     volatile const   /*!< defines 'read only' permissions     */
 #define     __O     volatile         /*!< defines 'write only' permissions    */
 #define     __IO    volatile         /*!< defines 'read / write' permissions  */
-
+#if 0
 /*!< Signed integer types  */
+#ifndef int8_t
 typedef   signed char     int8_t;
+#endif
+#ifndef int16_t
 typedef   signed short    int16_t;
+#endif
+#ifndef int32_t
 typedef   signed long     int32_t;
+#endif
+#ifndef int64_t
+typedef   signed long long     int64_t;
+#endif
 
 /*!< Unsigned integer types  */
+#ifndef uint8_t
 typedef unsigned char     uint8_t;
+#endif
+#ifndef uint16_t
 typedef unsigned short    uint16_t;
+#endif
+#ifndef uint32_t
 typedef unsigned long     uint32_t;
+#endif
+#ifndef uint64_t
+typedef unsigned long long    uint64_t;
+#endif
+#endif
+typedef   signed long long     int64_t;
+typedef unsigned long long    uint64_t;
 
 /*!< STM8Lx Standard Peripheral Library old types (maintained for legacy purpose) */
 
@@ -238,8 +259,9 @@ typedef uint32_t  u32;
 typedef uint16_t u16;
 typedef uint8_t  u8;
 
-
+#ifndef bool
 typedef enum {FALSE = 0, TRUE = !FALSE} bool;
+#endif
 
 typedef enum {RESET = 0, SET = !RESET} FlagStatus, ITStatus, BitStatus, BitAction;
 
