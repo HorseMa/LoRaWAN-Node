@@ -31,7 +31,7 @@
 
 // ring buffer - append at end, free from beg
 
-static u1_t buffer[1024];
+static u1_t buffer[512 + 256];
 static u1_t* beg;
 static u1_t* end;
 static u1_t* max;
