@@ -90,6 +90,11 @@ static struct {
 // I/O
 
 static void hal_io_init () {
+    GPIO_DeInit(GPIOA);
+    GPIO_DeInit(GPIOB);
+    GPIO_DeInit(GPIOC);
+    GPIO_Init(GPIOA, 1, GPIO_Mode_In_FL_No_IT);
+    
 #if 0
     // clock enable for GPIO ports A,B,C
     RCC->AHBENR  |= RCC_AHBENR_GPIOAEN | RCC_AHBENR_GPIOBEN | RCC_AHBENR_GPIOCEN;
@@ -110,6 +115,7 @@ static void hal_io_init () {
 
 // val ==1  => tx 1, rx 0 ; val == 0 => tx 0, rx 1
 void hal_pin_rxtx (u1_t val) {
+    //GPIO_WriteBit(GPIOA, 1, val);
 #if 0
     ASSERT(val == 1 || val == 0);
 #ifndef CFG_sx1276mb1_board
@@ -122,6 +128,7 @@ void hal_pin_rxtx (u1_t val) {
 
 // set radio NSS pin to given value
 void hal_pin_nss (u1_t val) {
+    GPIO_WriteBit(GPIOA, 1, val);
 #if 0
     hw_set_pin(GPIOx(NSS_PORT), NSS_PIN, val);
 #endif
@@ -129,6 +136,7 @@ void hal_pin_nss (u1_t val) {
 
 // set radio RST pin to given value (or keep floating!)
 void hal_pin_rst (u1_t val) {
+    GPIO_WriteBit(GPIOA, 1, val);
 #if 0
     if(val == 0 || val == 1) { // drive pin
         hw_cfg_pin(GPIOx(RST_PORT), RST_PIN, GPIOCFG_MODE_OUT | GPIOCFG_OSPEED_40MHz | GPIOCFG_OTYPE_PUPD | GPIOCFG_PUPD_PUP);
@@ -142,7 +150,8 @@ void hal_pin_rst (u1_t val) {
 extern void radio_irq_handler(u1_t dio);
 
 // generic EXTI IRQ handler for all channels
-void EXTI_IRQHandler () {
+void EXTI_IRQHandler (u1_t irq) {
+    radio_irq_handler(irq);
 #if 0
     // DIO 0
     if((EXTI->PR & (1<<DIO0_PIN)) != 0) { // pending
@@ -220,6 +229,13 @@ void EXTI15_10_IRQHandler () {
 #define GPIO_AF_SPI1        0x05
 
 static void hal_spi_init () {
+    SPI_DeInit(SPI1);
+    SPI_Init(SPI1, SPI_FirstBit_MSB,
+              SPI_BaudRatePrescaler_2,
+              SPI_Mode_Master, SPI_CPOL_Low,
+              SPI_CPHA_1Edge, SPI_Direction_Rx,
+              SPI_NSS_Soft, 0);
+    SPI_Cmd(SPI1,ENABLE);
 #if 0
     // enable clock for SPI interface 1
     RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
@@ -237,9 +253,14 @@ static void hal_spi_init () {
 
 // perform SPI transaction with radio
 u1_t hal_spi (u1_t out) {
+    SPI_SendData(SPI1, out);
+    while(RESET == SPI_GetFlagStatus(SPI1,SPI_FLAG_RXNE));
+    return SPI_ReceiveData(SPI1);
+#if 0
     SPI1->DR = out;
     while( (SPI1->SR & SPI_SR_RXNE ) == 0);
     return SPI1->DR; // in
+#endif
 }
 
 #ifdef CFG_lmic_clib
@@ -248,6 +269,11 @@ u1_t hal_spi (u1_t out) {
 // TIME
 
 static void hal_time_init () {
+    CLK_DeInit();
+    CLK_HSEConfig(CLK_HSE_ON);
+    CLK_SYSCLKSourceConfig(CLK_SYSCLKSource_HSE);
+    CLK_SYSCLKDivConfig(CLK_SYSCLKDiv_1);
+    CLK_SYSCLKSourceSwitchCmd(ENABLE);
 #if 0
 #ifndef CFG_clock_HSE
     PWR->CR |= PWR_CR_DBP; // disable write protect

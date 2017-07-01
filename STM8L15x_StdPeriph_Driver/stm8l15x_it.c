@@ -155,11 +155,13 @@ INTERRUPT_HANDLER(EXTID_H_IRQHandler,7)
   * @param  None
   * @retval None
   */
+extern void EXTI_IRQHandler (uint8_t irq);
 INTERRUPT_HANDLER(EXTI0_IRQHandler,8)
 {
     /* In order to detect unexpected events during development,
        it is recommended to set a breakpoint on the following instruction.
     */
+    EXTI_IRQHandler(0);
 }
 
 /**
@@ -172,6 +174,7 @@ INTERRUPT_HANDLER(EXTI1_IRQHandler,9)
     /* In order to detect unexpected events during development,
        it is recommended to set a breakpoint on the following instruction.
     */
+    EXTI_IRQHandler(1);
 }
 
 /**
@@ -184,6 +187,7 @@ INTERRUPT_HANDLER(EXTI2_IRQHandler,10)
     /* In order to detect unexpected events during development,
        it is recommended to set a breakpoint on the following instruction.
     */
+    EXTI_IRQHandler(2);
 }
 
 /**
@@ -196,6 +200,7 @@ INTERRUPT_HANDLER(EXTI3_IRQHandler,11)
     /* In order to detect unexpected events during development,
        it is recommended to set a breakpoint on the following instruction.
     */
+    EXTI_IRQHandler(3);
 }
 
 /**
@@ -208,6 +213,7 @@ INTERRUPT_HANDLER(EXTI4_IRQHandler,12)
     /* In order to detect unexpected events during development,
        it is recommended to set a breakpoint on the following instruction.
     */
+    EXTI_IRQHandler(4);
 }
 
 /**
@@ -220,6 +226,7 @@ INTERRUPT_HANDLER(EXTI5_IRQHandler,13)
     /* In order to detect unexpected events during development,
        it is recommended to set a breakpoint on the following instruction.
     */
+    EXTI_IRQHandler(5);
 }
 
 /**
@@ -232,6 +239,7 @@ INTERRUPT_HANDLER(EXTI6_IRQHandler,14)
     /* In order to detect unexpected events during development,
        it is recommended to set a breakpoint on the following instruction.
     */
+    EXTI_IRQHandler(6);
 }
 
 /**
