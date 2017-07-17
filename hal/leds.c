@@ -33,20 +33,22 @@ static const struct {
     GPIO_TypeDef* port;
     u1_t pin;
 } leds[] = {      // ID  PIN   IMST       LRSC   BLIPPER
-    { GPIOA, 3 }, // 0   PA3   D1 red     -      -
-    { GPIOA, 0 }, // 1   PA0   D2 yellow  green  -
-    { GPIOA, 1 }, // 2   PA1   D3 green   red    -
-    { GPIOA, 8 }, // 3   PA8   D4 orange  -      -
+    { GPIOB, 2 }, // 0   PA3   D1 red     -      -
+    { GPIOB, 1 }, // 1   PA0   D2 yellow  green  -
 };
 
 void leds_init (void) {
     // configure LED pins as output
-    for(u1_t i=0; i<sizeof(leds)/sizeof(leds[0]); i++) {
+    /*for(u1_t i=0; i<sizeof(leds)/sizeof(leds[0]); i++) {
         hw_cfg_pin(leds[i].port, leds[i].pin, GPIOCFG_MODE_OUT | GPIOCFG_OSPEED_40MHz | GPIOCFG_OTYPE_PUPD | GPIOCFG_PUPD_PUP);
         leds_set(i, 0);
-    }
+    }*/
 }
 
 void leds_set (u1_t id, u1_t state) {
+    if(id > 1)
+    {
+        return;
+    }
     hw_set_pin(leds[id].port, leds[id].pin, state);
 }

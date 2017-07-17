@@ -93,7 +93,26 @@ static void hal_io_init () {
     GPIO_DeInit(GPIOA);
     GPIO_DeInit(GPIOB);
     GPIO_DeInit(GPIOC);
-    GPIO_Init(GPIOA, 1, GPIO_Mode_In_FL_No_IT);
+    GPIO_DeInit(GPIOD);
+    //GPIO_Init(GPIOC, GPIO_Pin_6, GPIO_Mode_In_FL_IT);    // DIO0
+    //GPIO_Init(GPIOC, GPIO_Pin_5, GPIO_Mode_In_FL_IT);    // DIO1
+    //GPIO_Init(GPIOC, GPIO_Pin_4, GPIO_Mode_In_FL_IT);    // DIO2
+    GPIO_Init(GPIOC, GPIO_Pin_3, GPIO_Mode_Out_PP_High_Fast);    // UART_TX
+    GPIO_Init(GPIOC, GPIO_Pin_2, GPIO_Mode_In_FL_No_IT);    // UART_RX
+    //GPIO_Init(GPIOC, GPIO_Pin_1, GPIO_Mode_In_FL_IT);    // DIO3
+    //GPIO_Init(GPIOC, GPIO_Pin_0, GPIO_Mode_In_FL_IT);    // DIO4
+    //GPIO_Init(GPIOD, GPIO_Pin_4, GPIO_Mode_In_FL_IT);    // DIO5
+    GPIO_Init(GPIOB, GPIO_Pin_4, GPIO_Mode_Out_PP_High_Fast);    // NSS
+    GPIO_Init(GPIOB, GPIO_Pin_3, GPIO_Mode_In_FL_No_IT);    // PB3
+    GPIO_Init(GPIOB, GPIO_Pin_2, GPIO_Mode_Out_PP_High_Fast);    // LED_RX
+    GPIO_Init(GPIOB, GPIO_Pin_1, GPIO_Mode_Out_PP_High_Fast);    // LED_TX
+    GPIO_Init(GPIOB, GPIO_Pin_0, GPIO_Mode_In_FL_No_IT);    // CH1
+    GPIO_Init(GPIOD, GPIO_Pin_3, GPIO_Mode_In_FL_No_IT);    // CH2
+    GPIO_Init(GPIOD, GPIO_Pin_2, GPIO_Mode_In_FL_No_IT);    // CH3
+    GPIO_Init(GPIOD, GPIO_Pin_1, GPIO_Mode_In_FL_No_IT);    // CH4
+    GPIO_Init(GPIOD, GPIO_Pin_0, GPIO_Mode_In_FL_No_IT);    // CH5
+    GPIO_Init(GPIOA, GPIO_Pin_5, GPIO_Mode_In_FL_No_IT);    // PA5
+    GPIO_Init(GPIOA, GPIO_Pin_4, GPIO_Mode_Out_PP_High_Fast);    // SX1278_RST
     
 #if 0
     // clock enable for GPIO ports A,B,C
@@ -128,7 +147,7 @@ void hal_pin_rxtx (u1_t val) {
 
 // set radio NSS pin to given value
 void hal_pin_nss (u1_t val) {
-    GPIO_WriteBit(GPIOA, 1, val);
+    GPIO_WriteBit(GPIOB, GPIO_Pin_4, val);
 #if 0
     hw_set_pin(GPIOx(NSS_PORT), NSS_PIN, val);
 #endif
@@ -136,7 +155,7 @@ void hal_pin_nss (u1_t val) {
 
 // set radio RST pin to given value (or keep floating!)
 void hal_pin_rst (u1_t val) {
-    GPIO_WriteBit(GPIOA, 1, val);
+    GPIO_WriteBit(GPIOA, GPIO_Pin_4, val);
 #if 0
     if(val == 0 || val == 1) { // drive pin
         hw_cfg_pin(GPIOx(RST_PORT), RST_PIN, GPIOCFG_MODE_OUT | GPIOCFG_OSPEED_40MHz | GPIOCFG_OTYPE_PUPD | GPIOCFG_PUPD_PUP);
@@ -151,7 +170,14 @@ extern void radio_irq_handler(u1_t dio);
 
 // generic EXTI IRQ handler for all channels
 void EXTI_IRQHandler (u1_t irq) {
-    radio_irq_handler(irq);
+    
+    //radio_irq_handler(irq);
+    EXTI_ClearITPendingBit(EXTI_IT_Pin0);
+    EXTI_ClearITPendingBit(EXTI_IT_Pin1);
+    EXTI_ClearITPendingBit(EXTI_IT_Pin2);
+    EXTI_ClearITPendingBit(EXTI_IT_Pin3);
+    EXTI_ClearITPendingBit(EXTI_IT_Pin4);
+    return;
 #if 0
     // DIO 0
     if((EXTI->PR & (1<<DIO0_PIN)) != 0) { // pending
@@ -219,23 +245,29 @@ void EXTI15_10_IRQHandler () {
 
 // for sx1272 and 1276
 
-#define SCK_PORT   0 // SCK:  PA5
+#define SCK_PORT   0 // SCK:  PB5
 #define SCK_PIN    5
-#define MISO_PORT  0 // MISO: PA6
-#define MISO_PIN   6
-#define MOSI_PORT  0 // MOSI: PA7
-#define MOSI_PIN   7
+#define MISO_PORT  0 // MISO: PB7
+#define MISO_PIN   7
+#define MOSI_PORT  0 // MOSI: PB6
+#define MOSI_PIN   6
 
 #define GPIO_AF_SPI1        0x05
 
 static void hal_spi_init () {
+    GPIO_Init(GPIOB, GPIO_Pin_4, GPIO_Mode_Out_PP_High_Fast); // SPI_CS output high
+    GPIO_Init(GPIOB, GPIO_Pin_5, GPIO_Mode_Out_PP_Low_Fast);  // SPI_SCLK output
+    GPIO_Init(GPIOB, GPIO_Pin_6, GPIO_Mode_Out_PP_Low_Fast); // SPI_MOSI output
+    GPIO_Init(GPIOB, GPIO_Pin_7, GPIO_Mode_In_FL_No_IT); // SPI_MISO input
     SPI_DeInit(SPI1);
     SPI_Init(SPI1, SPI_FirstBit_MSB,
               SPI_BaudRatePrescaler_2,
               SPI_Mode_Master, SPI_CPOL_Low,
               SPI_CPHA_1Edge, SPI_Direction_Rx,
-              SPI_NSS_Soft, 0);
+              SPI_NSS_Soft, 7);
+    CLK_PeripheralClockConfig(CLK_Peripheral_SPI1,ENABLE);
     SPI_Cmd(SPI1,ENABLE);
+    
 #if 0
     // enable clock for SPI interface 1
     RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
@@ -253,8 +285,9 @@ static void hal_spi_init () {
 
 // perform SPI transaction with radio
 u1_t hal_spi (u1_t out) {
+    while(RESET == SPI_GetFlagStatus(SPI1,SPI_FLAG_TXE));
     SPI_SendData(SPI1, out);
-    while(RESET == SPI_GetFlagStatus(SPI1,SPI_FLAG_RXNE));
+    while(SET == SPI_GetFlagStatus(SPI1,SPI_FLAG_RXNE));
     return SPI_ReceiveData(SPI1);
 #if 0
     SPI1->DR = out;
@@ -270,10 +303,28 @@ u1_t hal_spi (u1_t out) {
 
 static void hal_time_init () {
     CLK_DeInit();
-    CLK_HSEConfig(CLK_HSE_ON);
     CLK_SYSCLKSourceConfig(CLK_SYSCLKSource_HSE);
     CLK_SYSCLKDivConfig(CLK_SYSCLKDiv_1);
+    /* Select HSE as system clock source */
     CLK_SYSCLKSourceSwitchCmd(ENABLE);
+    CLK_SYSCLKSourceConfig(CLK_SYSCLKSource_HSE);
+    /* High speed external clock prescaler: 1*/
+    CLK_SYSCLKDivConfig(CLK_SYSCLKDiv_1);
+    CLK_SYSCLKSourceSwitchCmd(ENABLE);
+    while (CLK_GetSYSCLKSource() != CLK_SYSCLKSource_HSE)
+    {}
+    /* TIM2 init */
+    CLK_PeripheralClockConfig(CLK_Peripheral_TIM2,ENABLE);
+
+
+    TIM2_DeInit();
+    TIM2_TimeBaseInit(TIM2_Prescaler_8,TIM2_CounterMode_Up,61);
+
+    TIM2_SetAutoreload(61);
+    TIM2_ITConfig(TIM2_IT_Update,ENABLE);
+    /* TIM2 counter enable */
+    TIM2_Cmd(ENABLE);
+    
 #if 0
 #ifndef CFG_clock_HSE
     PWR->CR |= PWR_CR_DBP; // disable write protect
@@ -304,21 +355,24 @@ static void hal_time_init () {
 }
 
 u4_t hal_ticks () {
-#if 0
+#if 1
     hal_disableIRQs();
     u4_t t = HAL.ticks;
-    u2_t cnt = TIM9->CNT;
-    if( (TIM9->SR & TIM_SR_UIF) ) {
+    //u2_t cnt = TIM9->CNT;
+    u2_t cnt = TIM2_GetCounter();
+    //if( (TIM9->SR & TIM_SR_UIF) ) {
+    if( TIM2_GetFlagStatus(TIM2_FLAG_Update) == SET) {
         // Overflow before we read CNT?
         // Include overflow in evaluation but
         // leave update of state to ISR once interrupts enabled again
-        cnt = TIM9->CNT;
+        //cnt = TIM9->CNT;
+        cnt = TIM2_GetCounter();
         t++;
     }
     hal_enableIRQs();
     return (t<<16)|cnt;
 #endif
-    return 0;
+    //return 0;
 }
 
 // return modified delta ticks from now to specified ticktime (0 for past, FFFF for far future)
@@ -336,6 +390,21 @@ void hal_waitUntil (u4_t time) {
 
 // check and rewind for target time
 u1_t hal_checkTimer (u4_t time) {
+    u2_t dt;
+    TIM2_ClearITPendingBit(TIM2_IT_CC2);
+    if((dt = deltaticks(time)) < 5) { // event is now (a few ticks ahead)
+        //TIM9->DIER &= ~TIM_DIER_CC2IE; // disable IE
+        TIM2_ITConfig(TIM2_IT_CC2,DISABLE);
+        return 1;
+    } else { // rewind timer (fully or to exact time))
+        //TIM9->CCR2 = TIM9->CNT + dt;   // set comparator
+        TIM2_SetCompare2(TIM2_GetCounter() + dt);
+        //TIM9->DIER |= TIM_DIER_CC2IE;  // enable IE
+        TIM2_ITConfig(TIM2_IT_CC2,ENABLE);
+        //TIM9->CCER |= TIM_CCER_CC2E;   // enable capture/compare uint 2
+        TIM2_CCxCmd(TIM2_Channel_2,ENABLE);
+        return 0;
+    }
 #if 0
     u2_t dt;
     TIM9->SR &= ~TIM_SR_CC2IF; // clear any pending interrupts
@@ -352,14 +421,20 @@ u1_t hal_checkTimer (u4_t time) {
 }
   
 void TIM9_IRQHandler () {
-#if 0
-    if(TIM9->SR & TIM_SR_UIF) { // overflow
+#if 1
+    //if(TIM9->SR & TIM_SR_UIF) { // overflow
+  if(TIM2_GetFlagStatus(TIM2_FLAG_Update) == SET){
         HAL.ticks++;
     }
-    if((TIM9->SR & TIM_SR_CC2IF) && (TIM9->DIER & TIM_DIER_CC2IE)) { // expired
+    //if((TIM9->SR & TIM_SR_CC2IF) && (TIM9->DIER & TIM_DIER_CC2IE)) { // expired
+  if((TIM2_GetFlagStatus(TIM2_FLAG_CC2) == SET)){// && (TIM2_GetITStatus(TIM2_IT_CC2) == SET)){
         // do nothing, only wake up cpu
     }
-    TIM9->SR = 0; // clear IRQ flags
+    //TIM9->SR = 0; // clear IRQ flags
+    TIM2_ClearFlag(TIM2_FLAG_Update);
+    TIM2_ClearFlag(TIM2_FLAG_CC2);
+    //TIM2_ClearITPendingBit(TIM2_IT_Update);
+    //TIM2_ClearITPendingBit(TIM2_IT_CC2);
 #endif
 }
 

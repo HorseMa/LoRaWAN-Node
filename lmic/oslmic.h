@@ -117,16 +117,16 @@ void os_runloop (void);
 typedef s4_t  ostime_t;
 
 #if !HAS_ostick_conv
-#define us2osticks(us)   ((ostime_t)( ((s8_t)(us) * OSTICKS_PER_SEC) / 1000000))
-#define ms2osticks(ms)   ((ostime_t)( ((s8_t)(ms) * OSTICKS_PER_SEC)    / 1000))
-#define sec2osticks(sec) ((ostime_t)( (s8_t)(sec) * OSTICKS_PER_SEC))
-#define osticks2ms(os)   ((s4_t)(((os)*(s8_t)1000    ) / OSTICKS_PER_SEC))
-#define osticks2us(os)   ((s4_t)(((os)*(s8_t)1000000 ) / OSTICKS_PER_SEC))
+#define us2osticks(us)   ((ostime_t)( ((ostime_t)(us) * OSTICKS_PER_SEC) / 1000000))
+#define ms2osticks(ms)   ((ostime_t)( ((ostime_t)(ms) * OSTICKS_PER_SEC)    / 1000))
+#define sec2osticks(sec) ((ostime_t)( (ostime_t)(sec) * OSTICKS_PER_SEC))
+#define osticks2ms(os)   ((s4_t)(((os)*(ostime_t)1000    ) / OSTICKS_PER_SEC))
+#define osticks2us(os)   ((s4_t)(((os)*(ostime_t)1000000 ) / OSTICKS_PER_SEC))
 // Special versions
-#define us2osticksCeil(us)  ((ostime_t)( ((s8_t)(us) * OSTICKS_PER_SEC + 999999) / 1000000))
-#define us2osticksRound(us) ((ostime_t)( ((s8_t)(us) * OSTICKS_PER_SEC + 500000) / 1000000))
-#define ms2osticksCeil(ms)  ((ostime_t)( ((s8_t)(ms) * OSTICKS_PER_SEC + 999) / 1000))
-#define ms2osticksRound(ms) ((ostime_t)( ((s8_t)(ms) * OSTICKS_PER_SEC + 500) / 1000))
+#define us2osticksCeil(us)  ((ostime_t)( ((ostime_t)(us) * OSTICKS_PER_SEC + 999999) / 1000000))
+#define us2osticksRound(us) ((ostime_t)( ((ostime_t)(us) * OSTICKS_PER_SEC + 500000) / 1000000))
+#define ms2osticksCeil(ms)  ((ostime_t)( ((ostime_t)(ms) * OSTICKS_PER_SEC + 999) / 1000))
+#define ms2osticksRound(ms) ((ostime_t)( ((ostime_t)(ms) * OSTICKS_PER_SEC + 500) / 1000))
 #endif
 
 

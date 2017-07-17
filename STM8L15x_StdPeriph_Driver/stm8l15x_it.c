@@ -287,7 +287,7 @@ INTERRUPT_HANDLER(ADC1_COMP_IRQHandler,18)
        it is recommended to set a breakpoint on the following instruction.
     */
 }
-
+extern void TIM9_IRQHandler(void);
 /**
   * @brief TIM2 Update/Overflow/Trigger/Break /USART2 TX Interrupt routine.
   * @param  None
@@ -298,6 +298,7 @@ INTERRUPT_HANDLER(TIM2_UPD_OVF_TRG_BRK_USART2_TX_IRQHandler,19)
     /* In order to detect unexpected events during development,
        it is recommended to set a breakpoint on the following instruction.
     */
+    TIM9_IRQHandler();
 }
 
 /**
@@ -310,6 +311,7 @@ INTERRUPT_HANDLER(TIM2_CC_USART2_RX_IRQHandler,20)
     /* In order to detect unexpected events during development,
        it is recommended to set a breakpoint on the following instruction.
     */
+    TIM9_IRQHandler();
 }
 
 
