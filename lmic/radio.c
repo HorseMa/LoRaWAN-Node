@@ -667,6 +667,7 @@ static void startrx (u1_t rxmode) {
 
 // get random seed from wideband noise rssi
 void radio_init () {
+    u2_t loop = 0;
     hal_disableIRQs();
 
     // manually reset radio
@@ -675,14 +676,16 @@ void radio_init () {
 #else
     hal_pin_rst(1); // drive RST pin high
 #endif
-    hal_waitUntil(os_getTime()+ms2osticks(1)); // wait >100us
-    hal_pin_rst(0); // configure RST pin floating!
-    hal_waitUntil(os_getTime()+ms2osticks(5)); // wait 5ms
+    for(loop = 0;loop < 65530;loop ++);
+    //hal_waitUntil(os_getTime()+ms2osticks(1)); // wait >100us
+    hal_pin_rst(1); // configure RST pin floating!
+    //hal_waitUntil(os_getTime()+ms2osticks(5)); // wait 5ms
 
     opmode(OPMODE_SLEEP);
-
+    for(loop = 0;loop < 65530;loop ++);
     // some sanity checks, e.g., read version number
     u1_t v = readReg(RegVersion);
+    
 #ifdef CFG_sx1276_radio
     ASSERT(v == 0x12 ); 
 #elif CFG_sx1272_radio

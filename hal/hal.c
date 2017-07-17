@@ -102,7 +102,6 @@ static void hal_io_init () {
     //GPIO_Init(GPIOC, GPIO_Pin_1, GPIO_Mode_In_FL_IT);    // DIO3
     //GPIO_Init(GPIOC, GPIO_Pin_0, GPIO_Mode_In_FL_IT);    // DIO4
     //GPIO_Init(GPIOD, GPIO_Pin_4, GPIO_Mode_In_FL_IT);    // DIO5
-    GPIO_Init(GPIOB, GPIO_Pin_4, GPIO_Mode_Out_PP_High_Fast);    // NSS
     GPIO_Init(GPIOB, GPIO_Pin_3, GPIO_Mode_In_FL_No_IT);    // PB3
     GPIO_Init(GPIOB, GPIO_Pin_2, GPIO_Mode_Out_PP_High_Fast);    // LED_RX
     GPIO_Init(GPIOB, GPIO_Pin_1, GPIO_Mode_Out_PP_High_Fast);    // LED_TX
@@ -113,23 +112,12 @@ static void hal_io_init () {
     GPIO_Init(GPIOD, GPIO_Pin_0, GPIO_Mode_In_FL_No_IT);    // CH5
     GPIO_Init(GPIOA, GPIO_Pin_5, GPIO_Mode_In_FL_No_IT);    // PA5
     GPIO_Init(GPIOA, GPIO_Pin_4, GPIO_Mode_Out_PP_High_Fast);    // SX1278_RST
-    
-#if 0
+
     // clock enable for GPIO ports A,B,C
-    RCC->AHBENR  |= RCC_AHBENR_GPIOAEN | RCC_AHBENR_GPIOBEN | RCC_AHBENR_GPIOCEN;
 
     // configure output lines and set to low state
-    for(u1_t i=0; i<sizeof(outputpins); i+=2) {
-        hw_cfg_pin(GPIOx(outputpins[i]), outputpins[i+1], GPIOCFG_MODE_OUT | GPIOCFG_OSPEED_40MHz | GPIOCFG_OTYPE_PUPD | GPIOCFG_PUPD_PUP);
-        hw_set_pin(GPIOx(outputpins[i]), outputpins[i+1], 0);
-    }
 
     // configure input lines and register IRQ
-    for(u1_t i=0; i<sizeof(inputpins); i+=2) {
-        hw_cfg_pin(GPIOx(inputpins[i]), inputpins[i+1], GPIOCFG_MODE_INP | GPIOCFG_OSPEED_40MHz | GPIOCFG_OTYPE_OPEN);
-        hw_cfg_extirq(inputpins[i], inputpins[i+1], GPIO_IRQ_RISING);
-    }
-#endif
 }
 
 // val ==1  => tx 1, rx 0 ; val == 0 => tx 0, rx 1
@@ -148,22 +136,11 @@ void hal_pin_rxtx (u1_t val) {
 // set radio NSS pin to given value
 void hal_pin_nss (u1_t val) {
     GPIO_WriteBit(GPIOB, GPIO_Pin_4, val);
-#if 0
-    hw_set_pin(GPIOx(NSS_PORT), NSS_PIN, val);
-#endif
 }
 
 // set radio RST pin to given value (or keep floating!)
 void hal_pin_rst (u1_t val) {
     GPIO_WriteBit(GPIOA, GPIO_Pin_4, val);
-#if 0
-    if(val == 0 || val == 1) { // drive pin
-        hw_cfg_pin(GPIOx(RST_PORT), RST_PIN, GPIOCFG_MODE_OUT | GPIOCFG_OSPEED_40MHz | GPIOCFG_OTYPE_PUPD | GPIOCFG_PUPD_PUP);
-        hw_set_pin(GPIOx(RST_PORT), RST_PIN, val);
-    } else { // keep pin floating
-        hw_cfg_pin(GPIOx(RST_PORT), RST_PIN, GPIOCFG_MODE_INP | GPIOCFG_OSPEED_40MHz | GPIOCFG_OTYPE_OPEN);
-    }
-#endif
 }
 
 extern void radio_irq_handler(u1_t dio);
@@ -255,17 +232,17 @@ void EXTI15_10_IRQHandler () {
 #define GPIO_AF_SPI1        0x05
 
 static void hal_spi_init () {
+    CLK_PeripheralClockConfig(CLK_Peripheral_SPI1, ENABLE);
     GPIO_Init(GPIOB, GPIO_Pin_4, GPIO_Mode_Out_PP_High_Fast); // SPI_CS output high
-    GPIO_Init(GPIOB, GPIO_Pin_5, GPIO_Mode_Out_PP_Low_Fast);  // SPI_SCLK output
-    GPIO_Init(GPIOB, GPIO_Pin_6, GPIO_Mode_Out_PP_Low_Fast); // SPI_MOSI output
+    GPIO_Init(GPIOB, GPIO_Pin_5, GPIO_Mode_Out_PP_High_Fast);  // SPI_SCLK output
+    GPIO_Init(GPIOB, GPIO_Pin_6, GPIO_Mode_Out_PP_High_Fast); // SPI_MOSI output
     GPIO_Init(GPIOB, GPIO_Pin_7, GPIO_Mode_In_FL_No_IT); // SPI_MISO input
-    SPI_DeInit(SPI1);
     SPI_Init(SPI1, SPI_FirstBit_MSB,
-              SPI_BaudRatePrescaler_2,
+              SPI_BaudRatePrescaler_8,
               SPI_Mode_Master, SPI_CPOL_Low,
-              SPI_CPHA_1Edge, SPI_Direction_Rx,
+              SPI_CPHA_1Edge, SPI_Direction_2Lines_FullDuplex,
               SPI_NSS_Soft, 7);
-    CLK_PeripheralClockConfig(CLK_Peripheral_SPI1,ENABLE);
+        
     SPI_Cmd(SPI1,ENABLE);
     
 #if 0
@@ -285,15 +262,17 @@ static void hal_spi_init () {
 
 // perform SPI transaction with radio
 u1_t hal_spi (u1_t out) {
-    while(RESET == SPI_GetFlagStatus(SPI1,SPI_FLAG_TXE));
+    /* Loop while DR register in not emplty */
+    while (SPI_GetFlagStatus(SPI1, SPI_FLAG_TXE) == RESET);
+
+    /* Send byte through the SPI peripheral */
     SPI_SendData(SPI1, out);
-    while(SET == SPI_GetFlagStatus(SPI1,SPI_FLAG_RXNE));
+
+    /* Wait to receive a byte */
+    while (SPI_GetFlagStatus(SPI1, SPI_FLAG_RXNE) == RESET);
+
+    /* Return the byte read from the SPI bus */
     return SPI_ReceiveData(SPI1);
-#if 0
-    SPI1->DR = out;
-    while( (SPI1->SR & SPI_SR_RXNE ) == 0);
-    return SPI1->DR; // in
-#endif
 }
 
 #ifdef CFG_lmic_clib
@@ -302,18 +281,17 @@ u1_t hal_spi (u1_t out) {
 // TIME
 
 static void hal_time_init () {
-    CLK_DeInit();
-    CLK_SYSCLKSourceConfig(CLK_SYSCLKSource_HSE);
-    CLK_SYSCLKDivConfig(CLK_SYSCLKDiv_1);
     /* Select HSE as system clock source */
     CLK_SYSCLKSourceSwitchCmd(ENABLE);
     CLK_SYSCLKSourceConfig(CLK_SYSCLKSource_HSE);
-    /* High speed external clock prescaler: 1*/
-    CLK_SYSCLKDivConfig(CLK_SYSCLKDiv_1);
-    CLK_SYSCLKSourceSwitchCmd(ENABLE);
+    /*High speed external clock prescaler: 1*/
+    CLK_SYSCLKDivConfig(CLK_SYSCLKDiv_2);
+
     while (CLK_GetSYSCLKSource() != CLK_SYSCLKSource_HSE)
     {}
+    
     /* TIM2 init */
+#if 0
     CLK_PeripheralClockConfig(CLK_Peripheral_TIM2,ENABLE);
 
 
@@ -324,7 +302,7 @@ static void hal_time_init () {
     TIM2_ITConfig(TIM2_IT_Update,ENABLE);
     /* TIM2 counter enable */
     TIM2_Cmd(ENABLE);
-    
+#endif
 #if 0
 #ifndef CFG_clock_HSE
     PWR->CR |= PWR_CR_DBP; // disable write protect
@@ -391,6 +369,7 @@ void hal_waitUntil (u4_t time) {
 // check and rewind for target time
 u1_t hal_checkTimer (u4_t time) {
     u2_t dt;
+#if 0
     TIM2_ClearITPendingBit(TIM2_IT_CC2);
     if((dt = deltaticks(time)) < 5) { // event is now (a few ticks ahead)
         //TIM9->DIER &= ~TIM_DIER_CC2IE; // disable IE
@@ -405,6 +384,7 @@ u1_t hal_checkTimer (u4_t time) {
         TIM2_CCxCmd(TIM2_Channel_2,ENABLE);
         return 0;
     }
+#endif
 #if 0
     u2_t dt;
     TIM9->SR &= ~TIM_SR_CC2IF; // clear any pending interrupts
@@ -421,7 +401,7 @@ u1_t hal_checkTimer (u4_t time) {
 }
   
 void TIM9_IRQHandler () {
-#if 1
+#if 0
     //if(TIM9->SR & TIM_SR_UIF) { // overflow
   if(TIM2_GetFlagStatus(TIM2_FLAG_Update) == SET){
         HAL.ticks++;
@@ -453,14 +433,8 @@ void hal_enableIRQs () {
 }
 
 void hal_sleep () {
-#if 0
-    // low power sleep mode
-#ifndef CFG_no_low_power_sleep_mode
-    PWR->CR |= PWR_CR_LPSDSR;
-#endif
     // suspend execution until IRQ, regardless of the CPSR I-bit
     __wait_for_interrupt;
-#endif
 }
 
 // -----------------------------------------------------------------------------

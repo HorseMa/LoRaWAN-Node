@@ -4,6 +4,9 @@
   <project>
     <path>$WS_DIR$\LoRaWAN-Node.ewp</path>
   </project>
+  <project>
+    <path>$WS_DIR$\..\contiki\platform\stm8l\STM8L15x-16x-05x-AL31-L_StdPeriph_Lib\Project\STM8L15x_StdPeriph_Examples\SPI\SPI_FLASH\spi.ewp</path>
+  </project>
   <batchBuild/>
 </workspace>
 

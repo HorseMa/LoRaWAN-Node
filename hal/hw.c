@@ -50,7 +50,7 @@ void hw_cfg_pin (GPIO_TypeDef* gpioport, u1_t pin, u2_t gpiocfg) {
 
 void hw_set_pin (GPIO_TypeDef* gpioport, u1_t pin, u1_t state) {
     //gpioport->ODR     = (gpioport->ODR     & ~(1 << pin))  | ((state & 1) << pin );
-    GPIO_WriteBit(gpioport,pin,state);
+    //GPIO_WriteBit(gpioport,pin,state);
 }
 
 void hw_cfg_extirq (u1_t portidx, u1_t pin, u1_t irqcfg) {
