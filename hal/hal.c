@@ -94,14 +94,21 @@ static void hal_io_init () {
     GPIO_DeInit(GPIOB);
     GPIO_DeInit(GPIOC);
     GPIO_DeInit(GPIOD);
-    //GPIO_Init(GPIOC, GPIO_Pin_6, GPIO_Mode_In_FL_IT);    // DIO0
-    //GPIO_Init(GPIOC, GPIO_Pin_5, GPIO_Mode_In_FL_IT);    // DIO1
-    //GPIO_Init(GPIOC, GPIO_Pin_4, GPIO_Mode_In_FL_IT);    // DIO2
+    GPIO_Init(GPIOC, GPIO_Pin_6, GPIO_Mode_In_PU_IT);    // DIO0
+    EXTI_SetPinSensitivity(EXTI_Pin_6,EXTI_Trigger_Falling);
+    GPIO_Init(GPIOC, GPIO_Pin_5, GPIO_Mode_In_PU_IT);    // DIO1
+    EXTI_SetPinSensitivity(EXTI_Pin_5,EXTI_Trigger_Falling);
+    GPIO_Init(GPIOC, GPIO_Pin_4, GPIO_Mode_In_PU_IT);    // DIO2
+    EXTI_SetPinSensitivity(EXTI_Pin_4,EXTI_Trigger_Falling);
     GPIO_Init(GPIOC, GPIO_Pin_3, GPIO_Mode_Out_PP_High_Fast);    // UART_TX
     GPIO_Init(GPIOC, GPIO_Pin_2, GPIO_Mode_In_FL_No_IT);    // UART_RX
-    //GPIO_Init(GPIOC, GPIO_Pin_1, GPIO_Mode_In_FL_IT);    // DIO3
-    //GPIO_Init(GPIOC, GPIO_Pin_0, GPIO_Mode_In_FL_IT);    // DIO4
-    //GPIO_Init(GPIOD, GPIO_Pin_4, GPIO_Mode_In_FL_IT);    // DIO5
+    GPIO_Init(GPIOC, GPIO_Pin_1, GPIO_Mode_In_PU_IT);    // DIO3
+    EXTI_SetPinSensitivity(EXTI_Pin_1,EXTI_Trigger_Falling);
+    GPIO_Init(GPIOC, GPIO_Pin_0, GPIO_Mode_In_PU_IT);    // DIO4
+    EXTI_SetPinSensitivity(EXTI_Pin_0,EXTI_Trigger_Falling);
+    //GPIO_Init(GPIOD, GPIO_Pin_4, GPIO_Mode_In_PU_IT);    // DIO5
+    //EXTI_SetPinSensitivity(EXTI_Pin_4,EXTI_Trigger_Falling);
+    
     GPIO_Init(GPIOB, GPIO_Pin_3, GPIO_Mode_In_FL_No_IT);    // PB3
     GPIO_Init(GPIOB, GPIO_Pin_2, GPIO_Mode_Out_PP_High_Fast);    // LED_RX
     GPIO_Init(GPIOB, GPIO_Pin_1, GPIO_Mode_Out_PP_High_Fast);    // LED_TX
@@ -149,11 +156,11 @@ extern void radio_irq_handler(u1_t dio);
 void EXTI_IRQHandler (u1_t irq) {
     
     //radio_irq_handler(irq);
-    EXTI_ClearITPendingBit(EXTI_IT_Pin0);
-    EXTI_ClearITPendingBit(EXTI_IT_Pin1);
-    EXTI_ClearITPendingBit(EXTI_IT_Pin2);
-    EXTI_ClearITPendingBit(EXTI_IT_Pin3);
-    EXTI_ClearITPendingBit(EXTI_IT_Pin4);
+    //EXTI_ClearITPendingBit(EXTI_IT_Pin0);
+    //EXTI_ClearITPendingBit(EXTI_IT_Pin1);
+    //EXTI_ClearITPendingBit(EXTI_IT_Pin2);
+    //EXTI_ClearITPendingBit(EXTI_IT_Pin3);
+    //EXTI_ClearITPendingBit(EXTI_IT_Pin4);
     return;
 #if 0
     // DIO 0
