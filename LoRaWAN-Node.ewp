@@ -2460,12 +2460,21 @@
     </file>
     <file>
       <name>$PROJ_DIR$\hal\adc.h</name>
+      <excluded>
+        <configuration>ping-pong</configuration>
+      </excluded>
     </file>
     <file>
       <name>$PROJ_DIR$\hal\crypto\aes.c</name>
+      <excluded>
+        <configuration>ping-pong</configuration>
+      </excluded>
     </file>
     <file>
       <name>$PROJ_DIR$\hal\crypto\aes.h</name>
+      <excluded>
+        <configuration>ping-pong</configuration>
+      </excluded>
     </file>
     <file>
       <name>$PROJ_DIR$\hal\board.c</name>
@@ -2475,9 +2484,15 @@
     </file>
     <file>
       <name>$PROJ_DIR$\hal\crypto\cmac.c</name>
+      <excluded>
+        <configuration>ping-pong</configuration>
+      </excluded>
     </file>
     <file>
       <name>$PROJ_DIR$\hal\crypto\cmac.h</name>
+      <excluded>
+        <configuration>ping-pong</configuration>
+      </excluded>
     </file>
     <file>
       <name>$PROJ_DIR$\hal\delay.c</name>
@@ -2487,15 +2502,27 @@
     </file>
     <file>
       <name>$PROJ_DIR$\hal\eeprom.c</name>
+      <excluded>
+        <configuration>ping-pong</configuration>
+      </excluded>
     </file>
     <file>
       <name>$PROJ_DIR$\hal\eeprom.h</name>
+      <excluded>
+        <configuration>ping-pong</configuration>
+      </excluded>
     </file>
     <file>
       <name>$PROJ_DIR$\hal\fifo.c</name>
+      <excluded>
+        <configuration>ping-pong</configuration>
+      </excluded>
     </file>
     <file>
       <name>$PROJ_DIR$\hal\fifo.h</name>
+      <excluded>
+        <configuration>ping-pong</configuration>
+      </excluded>
     </file>
     <file>
       <name>$PROJ_DIR$\hal\gpio.c</name>
@@ -2505,30 +2532,57 @@
     </file>
     <file>
       <name>$PROJ_DIR$\hal\gps.c</name>
+      <excluded>
+        <configuration>ping-pong</configuration>
+      </excluded>
     </file>
     <file>
       <name>$PROJ_DIR$\hal\gps.h</name>
+      <excluded>
+        <configuration>ping-pong</configuration>
+      </excluded>
     </file>
     <file>
       <name>$PROJ_DIR$\hal\i2c.c</name>
+      <excluded>
+        <configuration>ping-pong</configuration>
+      </excluded>
     </file>
     <file>
       <name>$PROJ_DIR$\hal\i2c.h</name>
+      <excluded>
+        <configuration>ping-pong</configuration>
+      </excluded>
     </file>
     <file>
       <name>$PROJ_DIR$\hal\LoRaMac-board.h</name>
+      <excluded>
+        <configuration>ping-pong</configuration>
+      </excluded>
     </file>
     <file>
       <name>$PROJ_DIR$\hal\pinName-board.h</name>
+      <excluded>
+        <configuration>ping-pong</configuration>
+      </excluded>
     </file>
     <file>
       <name>$PROJ_DIR$\hal\pinName-ioe.h</name>
+      <excluded>
+        <configuration>ping-pong</configuration>
+      </excluded>
     </file>
     <file>
       <name>$PROJ_DIR$\hal\selector.c</name>
+      <excluded>
+        <configuration>ping-pong</configuration>
+      </excluded>
     </file>
     <file>
       <name>$PROJ_DIR$\hal\selector.h</name>
+      <excluded>
+        <configuration>ping-pong</configuration>
+      </excluded>
     </file>
     <file>
       <name>$PROJ_DIR$\hal\serial.h</name>
@@ -2556,19 +2610,34 @@
     </file>
     <file>
       <name>$PROJ_DIR$\hal\uart.c</name>
+      <excluded>
+        <configuration>ping-pong</configuration>
+      </excluded>
     </file>
     <file>
       <name>$PROJ_DIR$\hal\uart.h</name>
+      <excluded>
+        <configuration>ping-pong</configuration>
+      </excluded>
     </file>
     <file>
       <name>$PROJ_DIR$\hal\utilities.c</name>
+      <excluded>
+        <configuration>ping-pong</configuration>
+      </excluded>
     </file>
     <file>
       <name>$PROJ_DIR$\hal\utilities.h</name>
+      <excluded>
+        <configuration>ping-pong</configuration>
+      </excluded>
     </file>
   </group>
   <group>
     <name>mac</name>
+    <excluded>
+      <configuration>ping-pong</configuration>
+    </excluded>
     <file>
       <name>$PROJ_DIR$\mac\LoRaMac.c</name>
     </file>
