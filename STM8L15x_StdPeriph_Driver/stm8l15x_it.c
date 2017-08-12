@@ -162,7 +162,7 @@ INTERRUPT_HANDLER(EXTI0_IRQHandler,8)
        it is recommended to set a breakpoint on the following instruction.
     */
     EXTI_ClearITPendingBit(EXTI_IT_Pin0);
-    EXTI_IRQHandler(0);
+    EXTI_IRQHandler(4);
 }
 
 /**
@@ -176,7 +176,7 @@ INTERRUPT_HANDLER(EXTI1_IRQHandler,9)
        it is recommended to set a breakpoint on the following instruction.
     */
     EXTI_ClearITPendingBit(EXTI_IT_Pin1);
-    EXTI_IRQHandler(1);
+    EXTI_IRQHandler(3);
 }
 
 /**
@@ -190,7 +190,7 @@ INTERRUPT_HANDLER(EXTI2_IRQHandler,10)
        it is recommended to set a breakpoint on the following instruction.
     */
     EXTI_ClearITPendingBit(EXTI_IT_Pin2);
-    EXTI_IRQHandler(2);
+    EXTI_IRQHandler(7);
 }
 
 /**
@@ -204,7 +204,7 @@ INTERRUPT_HANDLER(EXTI3_IRQHandler,11)
        it is recommended to set a breakpoint on the following instruction.
     */
     EXTI_ClearITPendingBit(EXTI_IT_Pin3);
-    EXTI_IRQHandler(3);
+    EXTI_IRQHandler(7);
 }
 
 /**
@@ -218,7 +218,7 @@ INTERRUPT_HANDLER(EXTI4_IRQHandler,12)
        it is recommended to set a breakpoint on the following instruction.
     */
     EXTI_ClearITPendingBit(EXTI_IT_Pin4);
-    EXTI_IRQHandler(4);
+    EXTI_IRQHandler(2);
 }
 
 /**
@@ -232,7 +232,7 @@ INTERRUPT_HANDLER(EXTI5_IRQHandler,13)
        it is recommended to set a breakpoint on the following instruction.
     */
     EXTI_ClearITPendingBit(EXTI_IT_Pin5);
-    EXTI_IRQHandler(5);
+    EXTI_IRQHandler(1);
 }
 
 /**
@@ -246,7 +246,7 @@ INTERRUPT_HANDLER(EXTI6_IRQHandler,14)
        it is recommended to set a breakpoint on the following instruction.
     */
     EXTI_ClearITPendingBit(EXTI_IT_Pin6);
-    EXTI_IRQHandler(6);
+    EXTI_IRQHandler(0);
 }
 
 /**

@@ -161,6 +161,7 @@ void EXTI_IRQHandler (u1_t irq) {
     //EXTI_ClearITPendingBit(EXTI_IT_Pin2);
     //EXTI_ClearITPendingBit(EXTI_IT_Pin3);
     //EXTI_ClearITPendingBit(EXTI_IT_Pin4);
+    radio_irq_handler(irq);
     return;
 #if 0
     // DIO 0
@@ -298,14 +299,14 @@ static void hal_time_init () {
     {}
     
     /* TIM2 init */
-#if 0
+#if 1
     CLK_PeripheralClockConfig(CLK_Peripheral_TIM2,ENABLE);
 
 
     TIM2_DeInit();
-    TIM2_TimeBaseInit(TIM2_Prescaler_8,TIM2_CounterMode_Up,61);
+    TIM2_TimeBaseInit(TIM2_Prescaler_1,TIM2_CounterMode_Up,61);
 
-    TIM2_SetAutoreload(61);
+    TIM2_SetAutoreload(16000000 / 1 / OSTICKS_PER_SEC);
     TIM2_ITConfig(TIM2_IT_Update,ENABLE);
     /* TIM2 counter enable */
     TIM2_Cmd(ENABLE);
@@ -376,8 +377,8 @@ void hal_waitUntil (u4_t time) {
 // check and rewind for target time
 u1_t hal_checkTimer (u4_t time) {
     u2_t dt;
-#if 0
-    TIM2_ClearITPendingBit(TIM2_IT_CC2);
+#if 1
+    TIM2_ClearFlag(TIM2_FLAG_CC2);
     if((dt = deltaticks(time)) < 5) { // event is now (a few ticks ahead)
         //TIM9->DIER &= ~TIM_DIER_CC2IE; // disable IE
         TIM2_ITConfig(TIM2_IT_CC2,DISABLE);
@@ -408,13 +409,13 @@ u1_t hal_checkTimer (u4_t time) {
 }
   
 void TIM9_IRQHandler () {
-#if 0
+#if 1
     //if(TIM9->SR & TIM_SR_UIF) { // overflow
   if(TIM2_GetFlagStatus(TIM2_FLAG_Update) == SET){
         HAL.ticks++;
     }
     //if((TIM9->SR & TIM_SR_CC2IF) && (TIM9->DIER & TIM_DIER_CC2IE)) { // expired
-  if((TIM2_GetFlagStatus(TIM2_FLAG_CC2) == SET)){// && (TIM2_GetITStatus(TIM2_IT_CC2) == SET)){
+  if((TIM2_GetFlagStatus(TIM2_FLAG_CC2) == SET) && (TIM2_GetITStatus(TIM2_IT_CC2) == SET)){
         // do nothing, only wake up cpu
     }
     //TIM9->SR = 0; // clear IRQ flags
