@@ -1783,6 +1783,7 @@
           <name>CCDefines</name>
           <state>STM8L15X_MD</state>
           <state>USE_BAND_433</state>
+          <state>USE_MODEM_LORA</state>
         </option>
         <option>
           <name>CCPreprocFile</name>
@@ -2400,6 +2401,9 @@
       <name>LoRaMac</name>
       <group>
         <name>classA</name>
+        <excluded>
+          <configuration>ping-pong</configuration>
+        </excluded>
         <file>
           <name>$PROJ_DIR$\apps\LoRaMac\classA\Bleeper-76\main.c</name>
         </file>
@@ -2439,7 +2443,6 @@
       <name>ping-pong</name>
       <excluded>
         <configuration>Debug</configuration>
-        <configuration>ping-pong</configuration>
       </excluded>
       <file>
         <name>$PROJ_DIR$\apps\ping-pong\Bleeper-76\main.c</name>
