@@ -379,16 +379,16 @@ void TimerReset( TimerEvent_t *obj )
 
 void TimerSetValue( TimerEvent_t *obj, uint32_t value )
 {
-#if 0
+#if 1
     uint32_t minValue = 0;
 
     TimerStop( obj );
 
-    if( LowPowerModeEnable == true )
+    //if( LowPowerModeEnable == true )
     {
-        minValue = RtcGetMinimumTimeout( );
+        //minValue = RtcGetMinimumTimeout( );
     }
-    else
+    //else
     {
         minValue = TimerHwGetMinimumTimeout( );
     }
@@ -405,12 +405,12 @@ void TimerSetValue( TimerEvent_t *obj, uint32_t value )
 
 uint32_t TimerGetValue( void )
 {
-#if 0
-    if( LowPowerModeEnable == true )
+#if 1
+    //if( LowPowerModeEnable == true )
     {
-        return RtcGetTimerElapsedTime( );
+        //return RtcGetTimerElapsedTime( );
     }
-    else
+    //else
     {
         return TimerHwGetElapsedTime( );
     }
@@ -419,12 +419,12 @@ uint32_t TimerGetValue( void )
 
 TimerTime_t TimerGetCurrentTime( void )
 {
-#if 0
-    if( LowPowerModeEnable == true )
+#if 1
+    //if( LowPowerModeEnable == true )
     {
-        return RtcGetTimerValue( );
+        //return RtcGetTimerValue( );
     }
-    else
+    //else
     {
         return TimerHwGetTime( );
     }
@@ -433,14 +433,14 @@ TimerTime_t TimerGetCurrentTime( void )
 
 static void TimerSetTimeout( TimerEvent_t *obj )
 {
-#if 0
+#if 1
     HasLoopedThroughMain = 0;
 
-    if( LowPowerModeEnable == true )
+    //if( LowPowerModeEnable == true )
     {
-        RtcSetTimeout( obj->Timestamp );
+        //RtcSetTimeout( obj->Timestamp );
     }
-    else
+    //else
     {
         TimerHwStart( obj->Timestamp );
     }
@@ -449,7 +449,7 @@ static void TimerSetTimeout( TimerEvent_t *obj )
 
 void TimerLowPowerHandler( void )
 {
-#if 0
+#if 1
     if( ( TimerListHead != NULL ) && ( TimerListHead->IsRunning == true ) ) 
     {    
         if( HasLoopedThroughMain < 5 )
@@ -460,11 +460,11 @@ void TimerLowPowerHandler( void )
         { 
             HasLoopedThroughMain = 0;
     
-            if( LowPowerModeEnable == true )
+            //if( LowPowerModeEnable == true )
             {
-                RtcEnterLowPowerStopMode( );
+                //RtcEnterLowPowerStopMode( );
             }
-            else
+            //else
             {
                 TimerHwEnterLowPowerStopMode( );
             }

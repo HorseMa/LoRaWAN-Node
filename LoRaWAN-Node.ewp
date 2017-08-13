@@ -1782,6 +1782,7 @@
         <option>
           <name>CCDefines</name>
           <state>STM8L15X_MD</state>
+          <state>USE_DEBUGGER</state>
           <state>USE_BAND_433</state>
           <state>USE_MODEM_LORA</state>
         </option>
@@ -2081,7 +2082,7 @@
         <option>
           <name>OOCOutputFormat</name>
           <version>2</version>
-          <state>0</state>
+          <state>1</state>
         </option>
         <option>
           <name>OCOutputOverride</name>
@@ -2089,7 +2090,7 @@
         </option>
         <option>
           <name>OOCOutputFile</name>
-          <state>LoRaWAN-Node.srec</state>
+          <state>LoRaWAN-Node.hex</state>
         </option>
         <option>
           <name>OOCCommandLineProducer</name>
@@ -2097,7 +2098,7 @@
         </option>
         <option>
           <name>OOCObjCopyEnable</name>
-          <state>0</state>
+          <state>1</state>
         </option>
       </data>
     </settings>
@@ -2478,9 +2479,15 @@
     </file>
     <file>
       <name>$PROJ_DIR$\hal\board.c</name>
+      <excluded>
+        <configuration>ping-pong</configuration>
+      </excluded>
     </file>
     <file>
       <name>$PROJ_DIR$\hal\board.h</name>
+      <excluded>
+        <configuration>ping-pong</configuration>
+      </excluded>
     </file>
     <file>
       <name>$PROJ_DIR$\hal\crypto\cmac.c</name>
@@ -2589,18 +2596,33 @@
     </file>
     <file>
       <name>$PROJ_DIR$\hal\spi-board.c</name>
+      <excluded>
+        <configuration>ping-pong</configuration>
+      </excluded>
     </file>
     <file>
       <name>$PROJ_DIR$\hal\spi-board.h</name>
+      <excluded>
+        <configuration>ping-pong</configuration>
+      </excluded>
     </file>
     <file>
       <name>$PROJ_DIR$\hal\spi.h</name>
+      <excluded>
+        <configuration>ping-pong</configuration>
+      </excluded>
     </file>
     <file>
       <name>$PROJ_DIR$\hal\sx1276-board.c</name>
     </file>
     <file>
       <name>$PROJ_DIR$\hal\sx1276-board.h</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\hal\timer-board.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\hal\timer-board.h</name>
     </file>
     <file>
       <name>$PROJ_DIR$\hal\timer.c</name>

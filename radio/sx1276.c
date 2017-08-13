@@ -214,10 +214,31 @@ TimerEvent_t RxTimeoutSyncWord;
  * Radio driver functions implementation
  */
 
+uint16_t SpiInOut( Spi_t *obj, uint16_t outData )
+{
+    if( ( obj == NULL ) || ( obj->Spi ) == NULL )
+    {
+        //while( 1 );
+    }
+    
+    /* Loop while DR register in not emplty */
+    while (SPI_GetFlagStatus(SPI1, SPI_FLAG_TXE) == RESET);
+
+    /* Send byte through the SPI peripheral */
+    SPI_SendData(SPI1, outData);
+
+    /* Wait to receive a byte */
+    while (SPI_GetFlagStatus(SPI1, SPI_FLAG_RXNE) == RESET);
+
+    /* Return the byte read from the SPI bus */
+    return SPI_ReceiveData(SPI1);
+}
+
 void SX1276Init( RadioEvents_t *events )
 {
     uint8_t i;
-
+    uint8_t v;
+    
     RadioEvents = events;
 
     // Initialize driver timeout timers
@@ -226,7 +247,11 @@ void SX1276Init( RadioEvents_t *events )
     TimerInit( &RxTimeoutSyncWord, SX1276OnTimeoutIrq );
     
     SX1276Reset( );
-
+    GPIO_WriteBit(GPIOB, GPIO_Pin_4, 0);
+    SpiInOut(NULL, 0x42 & 0x7F);
+    i = SpiInOut(NULL, 0x00);
+    GPIO_WriteBit(GPIOB, GPIO_Pin_4, 1);
+    v = i;
     RxChainCalibration( );
     
     SX1276SetOpMode( RF_OPMODE_SLEEP );
@@ -1189,13 +1214,13 @@ int16_t SX1276ReadRssi( RadioModems_t modem )
 void SX1276Reset( void )
 {
     // Set RESET pin to 0
-    GpioInit( &SX1276.Reset, RADIO_RESET, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    GPIO_WriteBit(GPIOA, GPIO_Pin_4, 0);
 
     // Wait 1 ms
     DelayMs( 1 );
 
     // Configure RESET as input
-    GpioInit( &SX1276.Reset, RADIO_RESET, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
+    GPIO_WriteBit(GPIOA, GPIO_Pin_4, 1);
 
     // Wait 6 ms
     DelayMs( 6 );
@@ -1232,7 +1257,7 @@ void SX1276SetModem( RadioModems_t modem )
 {
     if( SX1276.Spi.Spi == NULL )
     {
-        while( 1 );
+        //while( 1 );
     }
     if( SX1276.Settings.Modem == modem )
     {
@@ -1277,7 +1302,7 @@ void SX1276WriteBuffer( uint8_t addr, uint8_t *buffer, uint8_t size )
     uint8_t i;
 
     //NSS = 0;
-    GpioWrite( &SX1276.Spi.Nss, 0 );
+    GPIO_WriteBit(GPIOB, GPIO_Pin_4, 0);
 
     SpiInOut( &SX1276.Spi, addr | 0x80 );
     for( i = 0; i < size; i++ )
@@ -1286,7 +1311,7 @@ void SX1276WriteBuffer( uint8_t addr, uint8_t *buffer, uint8_t size )
     }
 
     //NSS = 1;
-    GpioWrite( &SX1276.Spi.Nss, 1 );
+    GPIO_WriteBit(GPIOB, GPIO_Pin_4, 1);
 }
 
 void SX1276ReadBuffer( uint8_t addr, uint8_t *buffer, uint8_t size )
@@ -1294,7 +1319,7 @@ void SX1276ReadBuffer( uint8_t addr, uint8_t *buffer, uint8_t size )
     uint8_t i;
 
     //NSS = 0;
-    GpioWrite( &SX1276.Spi.Nss, 0 );
+    GPIO_WriteBit(GPIOB, GPIO_Pin_4, 0);
 
     SpiInOut( &SX1276.Spi, addr & 0x7F );
 
@@ -1304,7 +1329,7 @@ void SX1276ReadBuffer( uint8_t addr, uint8_t *buffer, uint8_t size )
     }
 
     //NSS = 1;
-    GpioWrite( &SX1276.Spi.Nss, 1 );
+    GPIO_WriteBit(GPIOB, GPIO_Pin_4, 1);
 }
 
 void SX1276WriteFifo( uint8_t *buffer, uint8_t size )

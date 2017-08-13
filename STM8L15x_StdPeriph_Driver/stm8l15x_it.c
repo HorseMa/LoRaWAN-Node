@@ -41,6 +41,36 @@
 /* Private functions ---------------------------------------------------------*/
 /* Public functions ----------------------------------------------------------*/
 
+/*!
+ * \brief DIO 0 IRQ callback
+ */
+void SX1276OnDio0Irq( void );
+
+/*!
+ * \brief DIO 1 IRQ callback
+ */
+void SX1276OnDio1Irq( void );
+
+/*!
+ * \brief DIO 2 IRQ callback
+ */
+void SX1276OnDio2Irq( void );
+
+/*!
+ * \brief DIO 3 IRQ callback
+ */
+void SX1276OnDio3Irq( void );
+
+/*!
+ * \brief DIO 4 IRQ callback
+ */
+void SX1276OnDio4Irq( void );
+
+/*!
+ * \brief DIO 5 IRQ callback
+ */
+void SX1276OnDio5Irq( void );
+
 #ifdef _COSMIC_
 /**
   * @brief Dummy interrupt routine
@@ -160,6 +190,8 @@ INTERRUPT_HANDLER(EXTI0_IRQHandler,8)
     /* In order to detect unexpected events during development,
        it is recommended to set a breakpoint on the following instruction.
     */
+    EXTI_ClearITPendingBit(EXTI_IT_Pin0);
+    SX1276OnDio4Irq();
 }
 
 /**
@@ -172,6 +204,8 @@ INTERRUPT_HANDLER(EXTI1_IRQHandler,9)
     /* In order to detect unexpected events during development,
        it is recommended to set a breakpoint on the following instruction.
     */
+    EXTI_ClearITPendingBit(EXTI_IT_Pin1);
+    SX1276OnDio3Irq();
 }
 
 /**
@@ -184,6 +218,7 @@ INTERRUPT_HANDLER(EXTI2_IRQHandler,10)
     /* In order to detect unexpected events during development,
        it is recommended to set a breakpoint on the following instruction.
     */
+    EXTI_ClearITPendingBit(EXTI_IT_Pin2);
 }
 
 /**
@@ -196,6 +231,7 @@ INTERRUPT_HANDLER(EXTI3_IRQHandler,11)
     /* In order to detect unexpected events during development,
        it is recommended to set a breakpoint on the following instruction.
     */
+    EXTI_ClearITPendingBit(EXTI_IT_Pin3);
 }
 
 /**
@@ -208,6 +244,8 @@ INTERRUPT_HANDLER(EXTI4_IRQHandler,12)
     /* In order to detect unexpected events during development,
        it is recommended to set a breakpoint on the following instruction.
     */
+    EXTI_ClearITPendingBit(EXTI_IT_Pin4);
+    SX1276OnDio2Irq();
 }
 
 /**
@@ -220,6 +258,8 @@ INTERRUPT_HANDLER(EXTI5_IRQHandler,13)
     /* In order to detect unexpected events during development,
        it is recommended to set a breakpoint on the following instruction.
     */
+    EXTI_ClearITPendingBit(EXTI_IT_Pin5);
+    SX1276OnDio1Irq();
 }
 
 /**
@@ -232,6 +272,8 @@ INTERRUPT_HANDLER(EXTI6_IRQHandler,14)
     /* In order to detect unexpected events during development,
        it is recommended to set a breakpoint on the following instruction.
     */
+    EXTI_ClearITPendingBit(EXTI_IT_Pin6);
+    SX1276OnDio0Irq();
 }
 
 /**
@@ -244,6 +286,7 @@ INTERRUPT_HANDLER(EXTI7_IRQHandler,15)
     /* In order to detect unexpected events during development,
        it is recommended to set a breakpoint on the following instruction.
     */
+    EXTI_ClearITPendingBit(EXTI_IT_Pin7);
 }
 /**
   * @brief LCD /AES Interrupt routine.
@@ -290,6 +333,7 @@ INTERRUPT_HANDLER(TIM2_UPD_OVF_TRG_BRK_USART2_TX_IRQHandler,19)
     /* In order to detect unexpected events during development,
        it is recommended to set a breakpoint on the following instruction.
     */
+    TIM2_IRQHandler();
 }
 
 /**
@@ -315,6 +359,7 @@ INTERRUPT_HANDLER(TIM3_UPD_OVF_TRG_BRK_USART3_TX_IRQHandler,21)
     /* In order to detect unexpected events during development,
        it is recommended to set a breakpoint on the following instruction.
     */
+    TIM3_IRQHandler();
 }
 /**
   * @brief Timer3 Capture/Compare /USART3 RX Interrupt routine.

@@ -58,27 +58,37 @@ Gpio_t AntSwitchHf;
 
 void SX1276IoInit( void )
 {
-    GpioInit( &SX1276.Spi.Nss, RADIO_NSS, PIN_OUTPUT, PIN_PUSH_PULL, PIN_PULL_UP, 1 );
-
-    GpioInit( &SX1276.DIO0, RADIO_DIO_0, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
-    GpioInit( &SX1276.DIO1, RADIO_DIO_1, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
-    GpioInit( &SX1276.DIO2, RADIO_DIO_2, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
-    GpioInit( &SX1276.DIO3, RADIO_DIO_3, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
-    GpioInit( &SX1276.DIO4, RADIO_DIO_4, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
-    GpioInit( &SX1276.DIO5, RADIO_DIO_5, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
+    GPIO_Init(GPIOC, GPIO_Pin_6, GPIO_Mode_In_PU_IT);    // DIO0
+    //EXTI_SetPinSensitivity(EXTI_Pin_6,EXTI_Trigger_Falling);
+    GPIO_Init(GPIOC, GPIO_Pin_5, GPIO_Mode_In_PU_IT);    // DIO1
+    //EXTI_SetPinSensitivity(EXTI_Pin_5,EXTI_Trigger_Falling);
+    GPIO_Init(GPIOC, GPIO_Pin_4, GPIO_Mode_In_PU_IT);    // DIO2
+    //EXTI_SetPinSensitivity(EXTI_Pin_4,EXTI_Trigger_Falling);
+    GPIO_Init(GPIOC, GPIO_Pin_1, GPIO_Mode_In_PU_IT);    // DIO3
+    //EXTI_SetPinSensitivity(EXTI_Pin_1,EXTI_Trigger_Falling);
+    GPIO_Init(GPIOC, GPIO_Pin_0, GPIO_Mode_In_PU_IT);    // DIO4
+    //EXTI_SetPinSensitivity(EXTI_Pin_0,EXTI_Trigger_Falling);
+    //GPIO_Init(GPIOD, GPIO_Pin_4, GPIO_Mode_In_PU_IT);    // DIO5
+    //EXTI_SetPinSensitivity(EXTI_Pin_4,EXTI_Trigger_Falling);
 }
 
 void SX1276IoIrqInit( DioIrqHandler **irqHandlers )
 {
-    GpioSetInterrupt( &SX1276.DIO0, IRQ_RISING_EDGE, IRQ_HIGH_PRIORITY, irqHandlers[0] );
-    GpioSetInterrupt( &SX1276.DIO1, IRQ_RISING_EDGE, IRQ_HIGH_PRIORITY, irqHandlers[1] );
-    GpioSetInterrupt( &SX1276.DIO2, IRQ_RISING_EDGE, IRQ_HIGH_PRIORITY, irqHandlers[2] );
-    GpioSetInterrupt( &SX1276.DIO3, IRQ_RISING_EDGE, IRQ_HIGH_PRIORITY, irqHandlers[3] );
-    GpioSetInterrupt( &SX1276.DIO4, IRQ_RISING_EDGE, IRQ_HIGH_PRIORITY, irqHandlers[4] );
-    GpioSetInterrupt( &SX1276.DIO5, IRQ_RISING_EDGE, IRQ_HIGH_PRIORITY, irqHandlers[5] );
+    //GPIO_Init(GPIOC, GPIO_Pin_6, GPIO_Mode_In_PU_IT);    // DIO0
+    EXTI_SetPinSensitivity(EXTI_Pin_6,EXTI_Trigger_Rising);
+    //GPIO_Init(GPIOC, GPIO_Pin_5, GPIO_Mode_In_PU_IT);    // DIO1
+    EXTI_SetPinSensitivity(EXTI_Pin_5,EXTI_Trigger_Rising);
+    //GPIO_Init(GPIOC, GPIO_Pin_4, GPIO_Mode_In_PU_IT);    // DIO2
+    EXTI_SetPinSensitivity(EXTI_Pin_4,EXTI_Trigger_Rising);
+    //GPIO_Init(GPIOC, GPIO_Pin_1, GPIO_Mode_In_PU_IT);    // DIO3
+    EXTI_SetPinSensitivity(EXTI_Pin_1,EXTI_Trigger_Rising);
+    //GPIO_Init(GPIOC, GPIO_Pin_0, GPIO_Mode_In_PU_IT);    // DIO4
+    EXTI_SetPinSensitivity(EXTI_Pin_0,EXTI_Trigger_Rising);
+    //GPIO_Init(GPIOD, GPIO_Pin_4, GPIO_Mode_In_PU_IT);    // DIO5
+    //EXTI_SetPinSensitivity(EXTI_Pin_4,EXTI_Trigger_Rising);
 }
 
-void SX1276IoDeInit( void )
+/*void SX1276IoDeInit( void )
 {
     GpioInit( &SX1276.Spi.Nss, RADIO_NSS, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
 
@@ -88,7 +98,7 @@ void SX1276IoDeInit( void )
     GpioInit( &SX1276.DIO3, RADIO_DIO_3, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
     GpioInit( &SX1276.DIO4, RADIO_DIO_4, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
     GpioInit( &SX1276.DIO5, RADIO_DIO_5, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-}
+}*/
 
 uint8_t SX1276GetPaSelect( uint32_t channel )
 {
@@ -110,28 +120,15 @@ void SX1276SetAntSwLowPower( bool status )
     
         if( status == false )
         {
-            SX1276AntSwInit( );
+            //SX1276AntSwInit( );
         }
         else
         {
-            SX1276AntSwDeInit( );
+            //SX1276AntSwDeInit( );
         }
     }
 }
-
-void SX1276AntSwInit( void )
-{
-    GpioInit( &AntSwitchLf, RADIO_ANT_SWITCH_LF, PIN_OUTPUT, PIN_PUSH_PULL, PIN_PULL_UP, 1 );
-    GpioInit( &AntSwitchHf, RADIO_ANT_SWITCH_HF, PIN_OUTPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
-}
-
-void SX1276AntSwDeInit( void )
-{
-    GpioInit( &AntSwitchLf, RADIO_ANT_SWITCH_LF, PIN_OUTPUT, PIN_OPEN_DRAIN, PIN_NO_PULL, 0 );
-    GpioInit( &AntSwitchHf, RADIO_ANT_SWITCH_HF, PIN_OUTPUT, PIN_OPEN_DRAIN, PIN_NO_PULL, 0 );
-}
-
-void SX1276SetAntSw( uint8_t rxTx )
+ void SX1276SetAntSw( uint8_t rxTx )
 {
     if( SX1276.RxTx == rxTx )
     {
@@ -142,13 +139,13 @@ void SX1276SetAntSw( uint8_t rxTx )
 
     if( rxTx != 0 ) // 1: TX, 0: RX
     {
-        GpioWrite( &AntSwitchLf, 0 );
-        GpioWrite( &AntSwitchHf, 1 );
+        //GpioWrite( &AntSwitchLf, 0 );
+        //GpioWrite( &AntSwitchHf, 1 );
     }
     else
     {
-        GpioWrite( &AntSwitchLf, 1 );
-        GpioWrite( &AntSwitchHf, 0 );
+        //GpioWrite( &AntSwitchLf, 1 );
+        //GpioWrite( &AntSwitchHf, 0 );
     }
 }
 

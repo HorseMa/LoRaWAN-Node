@@ -77,7 +77,7 @@ typedef enum
     TX_TIMEOUT,
 }States_t;
 
-#define RX_TIMEOUT_VALUE                            1000000
+#define RX_TIMEOUT_VALUE                            100000
 #define BUFFER_SIZE                                 64 // Define the payload size here
 
 const uint8_t PingMsg[] = "PING";
@@ -128,11 +128,46 @@ int main( void )
 {
     bool isMaster = true;
     uint8_t i;
-
+    
+    TimerSetLowPowerEnable(false);
+    SX1276SetAntSwLowPower(false);
     // Target board initialisation
-    BoardInitMcu( );
-    BoardInitPeriph( );
+    //BoardInitMcu( );
+    //BoardInitPeriph( );
+    GPIO_DeInit(GPIOA);
+    GPIO_DeInit(GPIOB);
+    GPIO_DeInit(GPIOC);
+    GPIO_DeInit(GPIOD);
 
+    SX1276IoInit();
+    
+    GPIO_Init(GPIOC, GPIO_Pin_3, GPIO_Mode_Out_PP_High_Fast);    // UART_TX
+    GPIO_Init(GPIOC, GPIO_Pin_2, GPIO_Mode_In_FL_No_IT);    // UART_RX
+    
+    GPIO_Init(GPIOB, GPIO_Pin_3, GPIO_Mode_In_FL_No_IT);    // PB3
+    GPIO_Init(GPIOB, GPIO_Pin_2, GPIO_Mode_Out_PP_High_Fast);    // LED_RX
+    GPIO_Init(GPIOB, GPIO_Pin_1, GPIO_Mode_Out_PP_High_Fast);    // LED_TX
+    GPIO_Init(GPIOB, GPIO_Pin_0, GPIO_Mode_In_FL_No_IT);    // CH1
+    GPIO_Init(GPIOD, GPIO_Pin_3, GPIO_Mode_In_FL_No_IT);    // CH2
+    GPIO_Init(GPIOD, GPIO_Pin_2, GPIO_Mode_In_FL_No_IT);    // CH3
+    GPIO_Init(GPIOD, GPIO_Pin_1, GPIO_Mode_In_FL_No_IT);    // CH4
+    GPIO_Init(GPIOD, GPIO_Pin_0, GPIO_Mode_In_FL_No_IT);    // CH5
+    GPIO_Init(GPIOA, GPIO_Pin_5, GPIO_Mode_In_FL_No_IT);    // PA5
+    GPIO_Init(GPIOA, GPIO_Pin_4, GPIO_Mode_Out_PP_High_Fast);    // SX1278_RST
+    
+    CLK_PeripheralClockConfig(CLK_Peripheral_SPI1, ENABLE);
+    GPIO_Init(GPIOB, GPIO_Pin_4, GPIO_Mode_Out_PP_High_Fast); // SPI_CS output high
+    GPIO_Init(GPIOB, GPIO_Pin_5, GPIO_Mode_Out_PP_High_Fast);  // SPI_SCLK output
+    GPIO_Init(GPIOB, GPIO_Pin_6, GPIO_Mode_Out_PP_High_Fast); // SPI_MOSI output
+    GPIO_Init(GPIOB, GPIO_Pin_7, GPIO_Mode_In_FL_No_IT); // SPI_MISO input
+    SPI_Init(SPI1, SPI_FirstBit_MSB,
+              SPI_BaudRatePrescaler_8,
+              SPI_Mode_Master, SPI_CPOL_Low,
+              SPI_CPHA_1Edge, SPI_Direction_2Lines_FullDuplex,
+              SPI_NSS_Soft, 7);
+        
+    SPI_Cmd(SPI1,ENABLE);
+    TimerHwInit();
     // Radio initialization
     RadioEvents.TxDone = OnTxDone;
     RadioEvents.RxDone = OnRxDone;
@@ -186,8 +221,7 @@ int main( void )
                     if( strncmp( ( const char* )Buffer, ( const char* )PongMsg, 4 ) == 0 )
                     {
                         // Indicates on a LED that the received frame is a PONG
-                        GpioWrite( &Led1, GpioRead( &Led1 ) ^ 1 );
-
+                        GPIO_ToggleBits(GPIOB, GPIO_Pin_2);
                         // Send the next PING frame            
                         Buffer[0] = 'P';
                         Buffer[1] = 'I';
@@ -204,7 +238,7 @@ int main( void )
                     else if( strncmp( ( const char* )Buffer, ( const char* )PingMsg, 4 ) == 0 )
                     { // A master already exists then become a slave
                         isMaster = false;
-                        GpioWrite( &Led2, 1 ); // Set LED off
+                        GPIO_ToggleBits(GPIOB, GPIO_Pin_1);
                         Radio.Rx( RX_TIMEOUT_VALUE );
                     }
                     else // valid reception but neither a PING or a PONG message
@@ -221,7 +255,7 @@ int main( void )
                     if( strncmp( ( const char* )Buffer, ( const char* )PingMsg, 4 ) == 0 )
                     {
                         // Indicates on a LED that the received frame is a PING
-                        GpioWrite( &Led1, GpioRead( &Led1 ) ^ 1 );
+                        GPIO_ToggleBits(GPIOB, GPIO_Pin_2);
 
                         // Send the reply to the PONG string
                         Buffer[0] = 'P';
@@ -248,7 +282,7 @@ int main( void )
         case TX:
             // Indicates on a LED that we have sent a PING [Master]
             // Indicates on a LED that we have sent a PONG [Slave]
-            GpioWrite( &Led2, GpioRead( &Led2 ) ^ 1 );
+            GPIO_ToggleBits(GPIOB, GPIO_Pin_1);
             Radio.Rx( RX_TIMEOUT_VALUE );
             State = LOWPOWER;
             break;

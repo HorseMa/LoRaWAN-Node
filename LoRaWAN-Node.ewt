@@ -155,6 +155,12 @@
       <name>$PROJ_DIR$\hal\sx1276-board.h</name>
     </file>
     <file>
+      <name>$PROJ_DIR$\hal\timer-board.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\hal\timer-board.h</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\hal\timer.c</name>
     </file>
     <file>
